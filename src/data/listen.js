@@ -1,3 +1,4 @@
+/* eslint-disable no-negated-condition */
 const assign = require('object-assign')
 const {Observable} = require('../util/observable')
 const polyfilledEventSource = require('@sanity/eventsource')
@@ -6,6 +7,7 @@ const pick = require('../util/pick')
 const once = require('../util/once')
 const defaults = require('../util/defaults')
 const encodeQueryString = require('./encodeQueryString')
+const RNEventSource = require('react-native-event-source')
 
 // Limit is 16K for a _request_, eg including headers. Have to account for an
 // unknown range of headers, but an average EventSource request from Chrome seems
@@ -125,7 +127,11 @@ module.exports = function listen(query, params, opts = {}) {
     }
 
     function getEventSource() {
-      const evs = new EventSource(uri, esOptions)
+      const evs =
+        typeof navigator != 'undefined'
+          ? new RNEventSource(uri, esOptions)
+          : new EventSource(uri, esOptions)
+
       evs.addEventListener('error', onError, false)
       evs.addEventListener('channelError', onChannelError, false)
       evs.addEventListener('disconnect', onDisconnect, false)
